@@ -3,11 +3,11 @@
 <head>
   <link rel="icon" type="image/png" href="../images/favicon.png" />
   <meta property="og:title" content="Velorum — Apply" />
-<meta property="og:description" content="Velorum partners with high-potential and emerging Roblox developers, providing capital, monetization strategy, and advertising support to scale high-potential games." />
-<meta property="og:image" content="https://velorum.dev/images/whitefulllogo.png" />
-<meta property="og:url" content="https://velorum.dev" />
-<meta property="og:type" content="website" />
-<meta name="theme-color" content="#9D00FF" />
+  <meta property="og:description" content="Velorum partners with high-potential and emerging Roblox developers, providing capital, monetization strategy, and advertising support to scale high-potential games." />
+  <meta property="og:image" content="https://velorum.dev/images/whitefulllogo.png" />
+  <meta property="og:url" content="https://velorum.dev/apply" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#9D00FF" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Velorum — Apply</title>
@@ -103,8 +103,6 @@
     .checkbox-note { font-size: 12px; color: var(--gray-dim); }
     .backing-error { font-size: 12px; color: var(--error); display: none; }
     .backing-error.visible { display: block; }
-
-    /* Robux reveal */
     .robux-reveal {
       display: none;
       margin-top: -8px;
@@ -119,7 +117,6 @@
     .robux-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 10px; }
     .robux-input-wrap { position: relative; }
     .robux-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--gray-dim); font-weight: 700; pointer-events: none; }
-
     .upload-area { border: 1px dashed rgba(157,0,255,0.3); border-radius: 8px; padding: 28px; text-align: center; background: var(--brand-dim); cursor: pointer; transition: border-color 0.2s, background 0.2s; }
     .upload-area:hover { border-color: var(--brand); background: rgba(157,0,255,0.08); }
     .upload-area input[type="file"] { display: none; }
@@ -206,7 +203,6 @@
         <div class="form-section-heading">What type of backing are you seeking? <span class="req">*</span></div>
         <div class="checkbox-group">
 
-          <!-- Strategic Capital -->
           <label class="checkbox-item" id="capitalLabel">
             <input type="checkbox" name="support" value="capital" id="capitalCheck" />
             <div class="checkbox-content">
@@ -215,10 +211,8 @@
             </div>
           </label>
 
-          <!-- Robux field — slides in when capital is checked -->
           <div class="robux-reveal" id="robuxReveal">
             <div class="robux-label">
-              <!-- Robux R$ icon -->
               <svg width="18" height="18" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
                 <path fill="#9D00FF" d="M15,30 L50,5 L85,30 L85,70 L50,95 L15,70 Z"/>
                 <path fill="#0E0E11" d="M30,38 L70,38 L70,62 L30,62 Z"/>
@@ -227,7 +221,7 @@
               </svg>
               How much Robux are you requesting? <span class="req">*</span>
             </div>
-        <div class="field">
+            <div class="field">
               <div style="position:relative;">
                 <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;pointer-events:none;">
                   <img src="../images/robuxlogo.png" alt="R$" style="width:18px;height:18px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='inline';" />
@@ -364,6 +358,11 @@
         <span class="field-error" id="confirmError">You must confirm before submitting.</span>
       </div>
 
+      <!-- SPAM ERROR -->
+      <div id="spamError" style="display:none; background:rgba(255,77,77,0.07); border:1px solid rgba(255,77,77,0.3); border-radius:8px; padding:20px; font-size:13px; color:#ff4d4d;">
+        You have already submitted an application within the last 72 hours. Please wait before applying again.
+      </div>
+
       <!-- SUBMIT -->
       <div class="submit-wrap">
         <button type="submit" class="btn-submit">Submit Application</button>
@@ -372,7 +371,7 @@
 
       <div class="success-msg" id="successMsg">
         <h3>Application Submitted</h3>
-        <p>Thank you for applying. We'll review your submission and be in touch within 5–7 business days.</p>
+        <p>Your application has been received. A confirmation email has been sent to your inbox — please star or save it, as any future correspondence regarding your application will come from that same email thread.</p>
       </div>
 
     </form>
@@ -399,16 +398,26 @@
     </aside>
   </div>
 
-  
-
   <script>
+    function hasRecentSubmission() {
+      const lastSubmit = localStorage.getItem('velorum_last_submit');
+      if (!lastSubmit) return false;
+      const hoursSince = (Date.now() - parseInt(lastSubmit)) / (1000 * 60 * 60);
+      return hoursSince < 72;
+    }
+
+    function setSubmissionTimestamp() {
+      localStorage.setItem('velorum_last_submit', Date.now().toString());
+    }
+
     async function sendConfirmationEmail(toEmail, toName) {
-  await fetch('https://velorum-mailer.blufinityy.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email: toEmail, name: toName })
-  });
-}
+      await fetch('https://velorum-mailer.blufinityy.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: toEmail, name: toName })
+      });
+    }
+
     // ── Checkbox highlight ──
     document.querySelectorAll('.checkbox-item input').forEach(cb => {
       cb.addEventListener('change', function() {
@@ -483,6 +492,14 @@
     // ── Submit ──
     function handleSubmit(e) {
       e.preventDefault();
+
+      if (hasRecentSubmission()) {
+        const spamError = document.getElementById('spamError');
+        spamError.style.display = 'block';
+        spamError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+
       let valid = true;
 
       const email = document.getElementById('emailInput');
@@ -494,11 +511,9 @@
       const roblox = document.getElementById('robloxInput');
       if (!roblox.value.trim()) { setError('robloxInput','robloxError',true); valid = false; }
 
-      // At least one backing
       const anyBacking = document.querySelectorAll('input[name="support"]:checked').length > 0;
       if (!anyBacking) { document.getElementById('backingError').classList.add('visible'); valid = false; }
 
-      // Robux if capital selected
       if (capitalCheck.checked) {
         const robux = document.getElementById('robuxAmount');
         if (!robux.value || Number(robux.value) < 1) { setError('robuxAmount','robuxError',true); valid = false; }
@@ -529,10 +544,12 @@
         if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-    const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
-    const discordName = document.getElementById('discordInput').value;
-    sendConfirmationEmail(email.value, fullName || discordName);
-      // Success
+
+      const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
+      const discordName = document.getElementById('discordInput').value;
+      sendConfirmationEmail(email.value, fullName || discordName);
+      setSubmissionTimestamp();
+
       document.querySelector('.submit-wrap').style.display = 'none';
       const successMsg = document.getElementById('successMsg');
       successMsg.classList.add('visible');

@@ -399,7 +399,16 @@
     </aside>
   </div>
 
+  
+
   <script>
+    async function sendConfirmationEmail(toEmail, toName) {
+  await fetch('https://velorum-mailer.blufinityy.workers.dev/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: toEmail, name: toName })
+  });
+}
     // ── Checkbox highlight ──
     document.querySelectorAll('.checkbox-item input').forEach(cb => {
       cb.addEventListener('change', function() {
@@ -520,7 +529,9 @@
         if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
-
+    const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
+    const discordName = document.getElementById('discordInput').value;
+    sendConfirmationEmail(email.value, fullName || discordName);
       // Success
       document.querySelector('.submit-wrap').style.display = 'none';
       const successMsg = document.getElementById('successMsg');

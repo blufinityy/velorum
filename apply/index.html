@@ -115,8 +115,6 @@
     .robux-reveal.visible { display: block; animation: slideDown 0.2s ease; }
     @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
     .robux-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 10px; }
-    .robux-input-wrap { position: relative; }
-    .robux-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--gray-dim); font-weight: 700; pointer-events: none; }
     .upload-area { border: 1px dashed rgba(157,0,255,0.3); border-radius: 8px; padding: 28px; text-align: center; background: var(--brand-dim); cursor: pointer; transition: border-color 0.2s, background 0.2s; }
     .upload-area:hover { border-color: var(--brand); background: rgba(157,0,255,0.08); }
     .upload-area input[type="file"] { display: none; }
@@ -128,6 +126,7 @@
     .submit-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
     .btn-submit { background: var(--brand); color: var(--white); padding: 17px 42px; border: none; border-radius: 5px; font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: box-shadow 0.25s, transform 0.2s; }
     .btn-submit:hover { box-shadow: 0 0 28px var(--brand-glow), 0 6px 20px rgba(0,0,0,0.4); transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
     .submit-note { font-size: 12px; color: var(--gray-dim); }
     .form-sidebar { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 20px; }
     .sidebar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 28px; }
@@ -171,29 +170,29 @@
         <div class="fields-row">
           <div class="field">
             <label>Full Name <span class="opt">Optional</span></label>
-            <input type="text" placeholder="Your name" />
+            <input type="text" placeholder="Your name" maxlength="100" />
           </div>
           <div class="field">
             <label>Email Address <span class="req">*</span></label>
-            <input type="email" id="emailInput" placeholder="you@example.com" />
+            <input type="email" id="emailInput" placeholder="you@example.com" maxlength="254" />
             <span class="field-error" id="emailError">A valid email address is required.</span>
           </div>
         </div>
         <div class="fields-row">
           <div class="field">
             <label>Discord Username <span class="req">*</span></label>
-            <input type="text" id="discordInput" placeholder="YourDiscordUsername" />
+            <input type="text" id="discordInput" placeholder="YourDiscordUsername" maxlength="100" />
             <span class="field-error" id="discordError">Discord username is required.</span>
           </div>
           <div class="field">
             <label>Roblox Username <span class="req">*</span></label>
-            <input type="text" id="robloxInput" placeholder="YourRobloxUsername" />
+            <input type="text" id="robloxInput" placeholder="YourRobloxUsername" maxlength="100" />
             <span class="field-error" id="robloxError">Roblox username is required.</span>
           </div>
         </div>
         <div class="field">
           <label>Portfolio / Experience Link <span class="opt">Optional</span></label>
-          <input type="url" placeholder="https://" />
+          <input type="url" placeholder="https://" maxlength="500" />
           <span class="field-helper">Link to previous games, portfolio, or relevant work if applicable.</span>
         </div>
       </div>
@@ -290,21 +289,21 @@
 
       <!-- SECTION 5 -->
       <div class="form-section">
-        <div class="form-section-heading">Metrics Snapshot <span style="font-weight:400;color:var(--gray-dim);text-transform:none;letter-spacing:0;font-size:11px;"></span></div>
+        <div class="form-section-heading">Metrics Snapshot</div>
         <div class="fields-row">
           <div class="field">
             <label>Total Visits <span class="opt">If live</span></label>
-            <input type="text" placeholder="e.g. 1,200,000" />
+            <input type="text" placeholder="e.g. 1,200,000" maxlength="50" />
           </div>
           <div class="field">
             <label>Average CCU <span class="opt">If live</span></label>
-            <input type="text" placeholder="e.g. 400" />
+            <input type="text" placeholder="e.g. 400" maxlength="50" />
           </div>
         </div>
         <div class="fields-row">
           <div class="field">
             <label>Monthly Revenue <span class="opt">Optional</span></label>
-            <input type="text" placeholder="e.g. $2,000" />
+            <input type="text" placeholder="e.g. $2,000" maxlength="50" />
           </div>
           <div class="field">
             <label>Development Stage <span class="req">*</span></label>
@@ -325,15 +324,15 @@
       <div class="form-section">
         <div class="form-section-heading">Media & Supporting Materials</div>
         <div class="field">
-          <label>Screenshots <span class="opt">Optional</span></label>
+          <label>Screenshots <span class="opt">Optional — max 10</span></label>
           <div class="upload-area" onclick="document.getElementById('screenshots').click()">
             <input type="file" id="screenshots" accept="image/*" multiple />
-            <p class="upload-label"><span>Choose files</span> or drag and drop<br><span style="font-size:11px;color:var(--gray-dim);font-weight:400;">PNG, JPG, WEBP accepted</span></p>
+            <p class="upload-label"><span>Choose files</span> or drag and drop<br><span style="font-size:11px;color:var(--gray-dim);font-weight:400;">PNG, JPG, WEBP — max 8MB total</span></p>
           </div>
         </div>
-       <div class="field">
+        <div class="field">
           <label>Gameplay Video <span class="opt">Optional</span></label>
-          <input type="url" id="youtubeLink" placeholder="https://youtube.com/watch?v=..." />
+          <input type="url" id="youtubeLink" placeholder="https://youtube.com/watch?v=..." maxlength="500" />
           <span class="field-helper">Link a YouTube video showcasing your gameplay.</span>
         </div>
         <div class="field">
@@ -343,7 +342,7 @@
             <p class="upload-label"><span>Choose file</span> or drag and drop<br><span style="font-size:11px;color:var(--gray-dim);font-weight:400;">PDF, PPT accepted</span></p>
           </div>
         </div>
-        <span class="field-helper">Provide gameplay footage, UI screenshots, or any materials that clearly represent your project.</span>
+        <span class="field-helper">Uploading a pitch deck reduces the screenshot limit to 9 to stay within Discord's file size limit.</span>
       </div>
 
       <!-- SECTION 7 -->
@@ -369,7 +368,8 @@
 
       <div class="success-msg" id="successMsg">
         <h3>Application Submitted</h3>
-        <p>Thank you for your application. A confirmation email has been sent to your inbox. Please star and retain it, as all updates will be shared within that thread. Our team will follow up within 5–7 business days. Remember to check your spam folder.</p>      </div>
+        <p>Your application has been received. A confirmation email has been sent to your inbox — please star or save it, as any future correspondence regarding your application will come from that same email thread.</p>
+      </div>
 
     </form>
 
@@ -396,235 +396,288 @@
   </div>
 
   <script>
-    // ── Character limits ──
-function addCharCounter(inputId, limit) {
-  const el = document.getElementById(inputId);
-  if (!el) return;
-  const counter = document.createElement('span');
-  counter.style.cssText = 'font-size:11px;color:var(--gray-dim);text-align:right;display:block;margin-top:2px;';
-  counter.textContent = `0 / ${limit}`;
-  el.parentNode.appendChild(counter);
-  el.setAttribute('maxlength', limit);
-  el.addEventListener('input', () => {
-    const len = el.value.length;
-    counter.textContent = `${len} / ${limit}`;
-    counter.style.color = len > limit * 0.9 ? '#ff4d4d' : 'var(--gray-dim)';
-  });
-}
-
-addCharCounter('overviewInput', 2000);
-addCharCounter('allocationInput', 2000);
-
-// ── Spam protection ──
-function hasRecentSubmission() {
-  const lastSubmit = localStorage.getItem('velorum_last_submit');
-  if (!lastSubmit) return false;
-  return (Date.now() - parseInt(lastSubmit)) / (1000 * 60 * 60) < 72;
-}
-function setSubmissionTimestamp() {
-  localStorage.setItem('velorum_last_submit', Date.now().toString());
-}
-
-// ── Send to Worker ──
-async function submitApplication(data) {
-  await fetch('https://velorum-mailer.blufinityy.workers.dev/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-}
-
-// ── Checkbox highlight ──
-document.querySelectorAll('.checkbox-item input').forEach(cb => {
-  cb.addEventListener('change', function() {
-    this.closest('.checkbox-item').classList.toggle('checked', this.checked);
-    if (document.querySelectorAll('input[name="support"]:checked').length > 0) {
-      document.getElementById('backingError').classList.remove('visible');
+    // ── Character counters ──
+    function addCharCounter(inputId, limit) {
+      const el = document.getElementById(inputId);
+      if (!el) return;
+      const counter = document.createElement('span');
+      counter.style.cssText = 'font-size:11px;color:var(--gray-dim);text-align:right;display:block;margin-top:2px;';
+      counter.textContent = `0 / ${limit}`;
+      el.parentNode.appendChild(counter);
+      el.setAttribute('maxlength', limit);
+      el.addEventListener('input', () => {
+        const len = el.value.length;
+        counter.textContent = `${len} / ${limit}`;
+        counter.style.color = len > limit * 0.9 ? '#ff4d4d' : 'var(--gray-dim)';
+      });
     }
-  });
-});
+    addCharCounter('overviewInput', 2000);
+    addCharCounter('allocationInput', 2000);
 
-// ── Show/hide Robux field ──
-const capitalCheck = document.getElementById('capitalCheck');
-const robuxReveal  = document.getElementById('robuxReveal');
-capitalCheck.addEventListener('change', function() {
-  robuxReveal.classList.toggle('visible', this.checked);
-  if (!this.checked) {
-    const r = document.getElementById('robuxAmount');
-    r.value = '';
-    r.classList.remove('invalid');
-    document.getElementById('robuxError').style.display = 'none';
-  }
-});
-
-// ── Screenshot validation ──
-const screenshotInput = document.getElementById('screenshots');
-screenshotInput.addEventListener('change', function() {
-  const files = [...this.files];
-  const pitchdeck = document.getElementById('pitchdeck').files[0];
-  const maxImages = pitchdeck ? 9 : 10;
-  if (files.length > maxImages) {
-    alert(`Maximum ${maxImages} screenshots allowed${pitchdeck ? ' when a pitch deck is attached' : ''}.`);
-    this.value = ''; return;
-  }
-  const totalSize = files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > 8 * 1024 * 1024) {
-    alert('Total screenshot size cannot exceed 8MB.');
-    this.value = ''; return;
-  }
-  this.closest('.upload-area').querySelector('.upload-label').innerHTML =
-    `<span style="color:var(--brand)">${files.length} file(s) selected</span>`;
-});
-
-document.getElementById('pitchdeck').addEventListener('change', function() {
-  if (this.files.length > 0) {
-    this.closest('.upload-area').querySelector('.upload-label').innerHTML =
-      `<span style="color:var(--brand)">1 file selected</span>`;
-    if (document.getElementById('screenshots').files.length >= 10) {
-      alert('You have 10 screenshots selected. With a pitch deck attached the max is 9 — please reselect your screenshots.');
+    // ── Spam protection ──
+    function hasRecentSubmission() {
+      const lastSubmit = localStorage.getItem('velorum_last_submit');
+      if (!lastSubmit) return false;
+      return (Date.now() - parseInt(lastSubmit)) / (1000 * 60 * 60) < 72;
     }
-  }
-});
+    function setSubmissionTimestamp() {
+      localStorage.setItem('velorum_last_submit', Date.now().toString());
+    }
 
-// ── Helpers ──
-function setError(inputId, errorId, show) {
-  const input = document.getElementById(inputId);
-  const error = document.getElementById(errorId);
-  if (show) {
-    input.classList.add('invalid');
-    error.classList.add('visible');
-    error.style.display = 'block';
-  } else {
-    input.classList.remove('invalid');
-    error.classList.remove('visible');
-    error.style.display = 'none';
-  }
-}
+    // ── Send to Worker ──
+    async function submitApplication(data) {
+      const res = await fetch('https://velorum-mailer.blufinityy.workers.dev/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.status === 429) {
+        const btn = document.querySelector('.btn-submit');
+        btn.disabled = false;
+        btn.textContent = 'Submit Application';
+        const loadingBar = document.getElementById('loadingBar');
+        if (loadingBar) loadingBar.remove();
+        const spamError = document.getElementById('spamError');
+        spamError.style.display = 'block';
+        spamError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return false;
+      }
+      return true;
+    }
 
-[
-  ['emailInput','emailError'],
-  ['discordInput','discordError'],
-  ['robloxInput','robloxError'],
-  ['revenueInput','revenueError'],
-  ['overviewInput','overviewError'],
-  ['allocationInput','allocationError'],
-  ['stageSelect','stageError'],
-  ['robuxAmount','robuxError'],
-].forEach(([iId, eId]) => {
-  const el = document.getElementById(iId);
-  ['input','change'].forEach(ev => el.addEventListener(ev, () => setError(iId, eId, false)));
-});
+    // ── Checkbox highlight ──
+    document.querySelectorAll('.checkbox-item input').forEach(cb => {
+      cb.addEventListener('change', function() {
+        this.closest('.checkbox-item').classList.toggle('checked', this.checked);
+        if (document.querySelectorAll('input[name="support"]:checked').length > 0) {
+          document.getElementById('backingError').classList.remove('visible');
+        }
+      });
+    });
 
-document.getElementById('confirm').addEventListener('change', function() {
-  if (this.checked) {
-    document.getElementById('confirmError').classList.remove('visible');
-    document.getElementById('confirmError').style.display = 'none';
-  }
-});
+    // ── Show/hide Robux field ──
+    const capitalCheck = document.getElementById('capitalCheck');
+    const robuxReveal  = document.getElementById('robuxReveal');
+    capitalCheck.addEventListener('change', function() {
+      robuxReveal.classList.toggle('visible', this.checked);
+      if (!this.checked) {
+        const r = document.getElementById('robuxAmount');
+        r.value = '';
+        r.classList.remove('invalid');
+        document.getElementById('robuxError').style.display = 'none';
+      }
+    });
 
-// ── File to base64 ──
-function fileToBase64(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = e => resolve({ name: file.name, type: file.type, base64: e.target.result.split(',')[1] });
-    reader.readAsDataURL(file);
-  });
-}
+    // ── Screenshot validation ──
+    document.getElementById('screenshots').addEventListener('change', function() {
+      const files = [...this.files];
+      const pitchdeck = document.getElementById('pitchdeck').files[0];
+      const maxImages = pitchdeck ? 9 : 10;
+      if (files.length > maxImages) {
+        alert(`Maximum ${maxImages} screenshots allowed${pitchdeck ? ' when a pitch deck is attached' : ''}.`);
+        this.value = ''; return;
+      }
+      const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+      if (totalSize > 8 * 1024 * 1024) {
+        alert('Total screenshot size cannot exceed 8MB.');
+        this.value = ''; return;
+      }
+      this.closest('.upload-area').querySelector('.upload-label').innerHTML =
+        `<span style="color:var(--brand)">${files.length} file(s) selected</span>`;
+    });
 
-// ── Submit ──
-async function handleSubmit(e) {
-  e.preventDefault();
+    document.getElementById('pitchdeck').addEventListener('change', function() {
+      if (this.files.length > 0) {
+        this.closest('.upload-area').querySelector('.upload-label').innerHTML =
+          `<span style="color:var(--brand)">1 file selected</span>`;
+        if (document.getElementById('screenshots').files.length >= 10) {
+          alert('You have 10 screenshots selected. With a pitch deck attached the max is 9 — please reselect your screenshots.');
+        }
+      }
+    });
 
-  if (hasRecentSubmission()) {
-    const spamError = document.getElementById('spamError');
-    spamError.style.display = 'block';
-    spamError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
+    // ── Helpers ──
+    function setError(inputId, errorId, show) {
+      const input = document.getElementById(inputId);
+      const error = document.getElementById(errorId);
+      if (show) {
+        input.classList.add('invalid');
+        error.classList.add('visible');
+        error.style.display = 'block';
+      } else {
+        input.classList.remove('invalid');
+        error.classList.remove('visible');
+        error.style.display = 'none';
+      }
+    }
 
-  let valid = true;
+    [
+      ['emailInput','emailError'],
+      ['discordInput','discordError'],
+      ['robloxInput','robloxError'],
+      ['revenueInput','revenueError'],
+      ['overviewInput','overviewError'],
+      ['allocationInput','allocationError'],
+      ['stageSelect','stageError'],
+      ['robuxAmount','robuxError'],
+    ].forEach(([iId, eId]) => {
+      const el = document.getElementById(iId);
+      ['input','change'].forEach(ev => el.addEventListener(ev, () => setError(iId, eId, false)));
+    });
 
-  const email = document.getElementById('emailInput');
-  if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) { setError('emailInput','emailError',true); valid = false; }
+    document.getElementById('confirm').addEventListener('change', function() {
+      if (this.checked) {
+        document.getElementById('confirmError').classList.remove('visible');
+        document.getElementById('confirmError').style.display = 'none';
+      }
+    });
 
-  const discord = document.getElementById('discordInput');
-  if (!discord.value.trim()) { setError('discordInput','discordError',true); valid = false; }
+    // ── File to base64 ──
+    function fileToBase64(file) {
+      return new Promise(resolve => {
+        const reader = new FileReader();
+        reader.onload = e => resolve({ name: file.name, type: file.type, base64: e.target.result.split(',')[1] });
+        reader.readAsDataURL(file);
+      });
+    }
 
-  const roblox = document.getElementById('robloxInput');
-  if (!roblox.value.trim()) { setError('robloxInput','robloxError',true); valid = false; }
+    // ── Submit ──
+    async function handleSubmit(e) {
+      e.preventDefault();
 
-  const anyBacking = document.querySelectorAll('input[name="support"]:checked').length > 0;
-  if (!anyBacking) { document.getElementById('backingError').classList.add('visible'); valid = false; }
+      if (hasRecentSubmission()) {
+        const spamError = document.getElementById('spamError');
+        spamError.style.display = 'block';
+        spamError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
-  if (capitalCheck.checked) {
-    const robux = document.getElementById('robuxAmount');
-    if (!robux.value || Number(robux.value) < 1) { setError('robuxAmount','robuxError',true); valid = false; }
-  }
+      let valid = true;
 
-  const revenue = document.getElementById('revenueInput');
-  if (!revenue.value.trim()) { setError('revenueInput','revenueError',true); valid = false; }
+      const email = document.getElementById('emailInput');
+      if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) { setError('emailInput','emailError',true); valid = false; }
 
-  const overview = document.getElementById('overviewInput');
-  if (!overview.value.trim()) { setError('overviewInput','overviewError',true); valid = false; }
+      const discord = document.getElementById('discordInput');
+      if (!discord.value.trim()) { setError('discordInput','discordError',true); valid = false; }
 
-  const allocation = document.getElementById('allocationInput');
-  if (!allocation.value.trim()) { setError('allocationInput','allocationError',true); valid = false; }
+      const roblox = document.getElementById('robloxInput');
+      if (!roblox.value.trim()) { setError('robloxInput','robloxError',true); valid = false; }
 
-  const stage = document.getElementById('stageSelect');
-  if (!stage.value) { setError('stageSelect','stageError',true); valid = false; }
+      const anyBacking = document.querySelectorAll('input[name="support"]:checked').length > 0;
+      if (!anyBacking) { document.getElementById('backingError').classList.add('visible'); valid = false; }
 
-  const confirm = document.getElementById('confirm');
-  const confirmError = document.getElementById('confirmError');
-  if (!confirm.checked) {
-    confirmError.classList.add('visible');
-    confirmError.style.display = 'block';
-    valid = false;
-  }
+      if (capitalCheck.checked) {
+        const robux = document.getElementById('robuxAmount');
+        if (!robux.value || Number(robux.value) < 1) { setError('robuxAmount','robuxError',true); valid = false; }
+      }
 
-  if (!valid) {
-    const firstInvalid = document.querySelector('.invalid, .backing-error.visible, .field-error.visible');
-    if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
+      const revenue = document.getElementById('revenueInput');
+      if (!revenue.value.trim()) { setError('revenueInput','revenueError',true); valid = false; }
 
-  const btn = document.querySelector('.btn-submit');
-  btn.disabled = true;
-  btn.textContent = 'Submitting...';
+      const overview = document.getElementById('overviewInput');
+      if (!overview.value.trim()) { setError('overviewInput','overviewError',true); valid = false; }
 
-  const screenshotFiles = [...(document.getElementById('screenshots').files || [])];
-  const pitchdeckFile = document.getElementById('pitchdeck').files[0];
-  const maxScreenshots = pitchdeckFile ? 9 : 10;
-  const images = await Promise.all(screenshotFiles.slice(0, maxScreenshots).map(fileToBase64));
-  const pitchdeck = pitchdeckFile ? await fileToBase64(pitchdeckFile) : null;
+      const allocation = document.getElementById('allocationInput');
+      if (!allocation.value.trim()) { setError('allocationInput','allocationError',true); valid = false; }
 
-  const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
+      const stage = document.getElementById('stageSelect');
+      if (!stage.value) { setError('stageSelect','stageError',true); valid = false; }
 
-  await submitApplication({
-    email: email.value,
-    name: fullName || discord.value,
-    discord: discord.value,
-    roblox: roblox.value,
-    backing: [...document.querySelectorAll('input[name="support"]:checked')].map(el => el.value).join(', '),
-    robux: document.getElementById('robuxAmount').value || 'N/A',
-    revenue: revenue.value + '%',
-    overview: overview.value,
-    allocation: allocation.value,
-    stage: stage.value,
-    visits: document.querySelector('input[placeholder="e.g. 1,200,000"]').value || 'N/A',
-    ccu: document.querySelector('input[placeholder="e.g. 400"]').value || 'N/A',
-    monthlyRevenue: document.querySelector('input[placeholder="e.g. $2,000"]').value || 'N/A',
-    youtubeLink: document.getElementById('youtubeLink').value || 'N/A',
-    images,
-    pitchdeck
-  });
+      const confirm = document.getElementById('confirm');
+      const confirmError = document.getElementById('confirmError');
+      if (!confirm.checked) {
+        confirmError.classList.add('visible');
+        confirmError.style.display = 'block';
+        valid = false;
+      }
 
-  setSubmissionTimestamp();
+      if (!valid) {
+        const firstInvalid = document.querySelector('.invalid, .backing-error.visible, .field-error.visible');
+        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
 
-  document.querySelector('.submit-wrap').style.display = 'none';
-  const successMsg = document.getElementById('successMsg');
-  successMsg.classList.add('visible');
-  successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+      // ── Show loading bar ──
+      const btn = document.querySelector('.btn-submit');
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loadingBar';
+      loadingDiv.innerHTML = `
+        <div style="margin-top:16px;">
+          <p style="font-size:12px;color:var(--gray);margin-bottom:6px;letter-spacing:0.05em;">Please wait — your application is being submitted. Do not close this page.</p>
+          <p id="uploadStatus" style="font-size:11px;color:var(--gray-dim);margin-bottom:10px;">Preparing your application...</p>
+          <div style="width:100%;height:4px;background:var(--bg3);border-radius:100px;overflow:hidden;">
+            <div id="loadingFill" style="height:100%;width:0%;background:var(--brand);border-radius:100px;transition:width 0.4s ease;"></div>
+          </div>
+        </div>
+      `;
+      btn.parentNode.appendChild(loadingDiv);
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress = Math.min(progress + Math.random() * 12, 90);
+        const fill = document.getElementById('loadingFill');
+        if (fill) fill.style.width = progress + '%';
+      }, 400);
+
+      // ── Prepare files ──
+      const screenshotFiles = [...(document.getElementById('screenshots').files || [])];
+      const pitchdeckFile = document.getElementById('pitchdeck').files[0];
+      const maxScreenshots = pitchdeckFile ? 9 : 10;
+      const images = await Promise.all(screenshotFiles.slice(0, maxScreenshots).map(fileToBase64));
+      const pitchdeck = pitchdeckFile ? await fileToBase64(pitchdeckFile) : null;
+
+      // ── Update status ──
+      const status = document.getElementById('uploadStatus');
+      if (status) {
+        if (images.length > 0 || pitchdeck) {
+          status.textContent = `Uploading ${images.length} screenshot(s)${pitchdeck ? ' and pitch deck' : ''}...`;
+        } else {
+          status.textContent = 'Sending your application...';
+        }
+      }
+
+      const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
+
+      const success = await submitApplication({
+        email: email.value,
+        name: fullName || discord.value,
+        discord: discord.value,
+        roblox: roblox.value,
+        backing: [...document.querySelectorAll('input[name="support"]:checked')].map(el => el.value).join(', '),
+        robux: document.getElementById('robuxAmount').value || 'N/A',
+        revenue: revenue.value + '%',
+        overview: overview.value,
+        allocation: allocation.value,
+        stage: stage.value,
+        visits: document.querySelector('input[placeholder="e.g. 1,200,000"]').value || 'N/A',
+        ccu: document.querySelector('input[placeholder="e.g. 400"]').value || 'N/A',
+        monthlyRevenue: document.querySelector('input[placeholder="e.g. $2,000"]').value || 'N/A',
+        youtubeLink: document.getElementById('youtubeLink').value || 'N/A',
+        images,
+        pitchdeck
+      });
+
+      if (!success) { clearInterval(interval); return; }
+
+      if (status) status.textContent = 'Finalizing submission...';
+      setSubmissionTimestamp();
+
+      clearInterval(interval);
+      const fill = document.getElementById('loadingFill');
+      if (fill) fill.style.width = '100%';
+
+      setTimeout(() => {
+        document.querySelector('.submit-wrap').style.display = 'none';
+        const loadingBar = document.getElementById('loadingBar');
+        if (loadingBar) loadingBar.remove();
+        const successMsg = document.getElementById('successMsg');
+        successMsg.classList.add('visible');
+        successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 500);
+    }
   </script>
 </body>
 </html>

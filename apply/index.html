@@ -478,8 +478,8 @@
         this.value = ''; return;
       }
       const totalSize = files.reduce((sum, f) => sum + f.size, 0);
-      if (totalSize > 8 * 1024 * 1024) {
-        alert('Total screenshot size cannot exceed 8MB.');
+      if (totalSize > 10 * 1024 * 1024) {
+        alert('Total screenshot size cannot exceed 10MB.');
         this.value = ''; return;
       }
       this.closest('.upload-area').querySelector('.upload-label').innerHTML =

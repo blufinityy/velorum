@@ -496,6 +496,48 @@
       }
     });
 
+    // ── Drag and drop ──
+    document.querySelectorAll('.upload-area').forEach(area => {
+    area.addEventListener('dragover', e => {
+      e.preventDefault();
+      area.style.borderColor = 'var(--brand)';
+      area.style.background = 'rgba(157,0,255,0.08)';
+    });
+
+    area.addEventListener('dragleave', () => {
+      area.style.borderColor = '';
+      area.style.background = '';
+    });
+
+    area.addEventListener('drop', e => {
+      e.preventDefault();
+      area.style.borderColor = '';
+      area.style.background = '';
+
+      const input = area.querySelector('input[type="file"]');
+      if (!input) return;
+
+      const files = e.dataTransfer.files;
+      if (!files.length) return;
+
+      // Transfer files to the input
+      const dt = new DataTransfer();
+      const accepted = input.accept.split(',').map(s => s.trim());
+
+      [...files].forEach(file => {
+        const matchesMime = accepted.some(a => {
+          if (a.startsWith('.')) return file.name.toLowerCase().endsWith(a);
+          if (a.endsWith('/*')) return file.type.startsWith(a.replace('/*', '/'));
+          return file.type === a;
+        });
+        if (matchesMime) dt.items.add(file);
+      });
+
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+    });
+  });
+
     // ── Helpers ──
     function setError(inputId, errorId, show) {
       const input = document.getElementById(inputId);

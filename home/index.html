@@ -199,6 +199,27 @@
       text-transform: uppercase;
       font-weight: 600;
     }
+
+    .scroll-hint {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px; height: 36px;
+  border: 1px solid rgba(157,0,255,0.3);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  transition: border-color 0.2s;
+}
+.scroll-hint:hover { border-color: var(--brand); }
+.scroll-hint svg { width: 20px; height: 20px; fill: var(--brand); }
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(6px); }
+}
+
     .section-label {
       font-size: 11px;
       font-weight: 700;
@@ -443,6 +464,9 @@
       </div>
       <p class="hero-fine">Selective partnerships. Limited portfolio.</p>
     </div>
+    <div class="scroll-hint" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">
+  <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+</div>
   </section>
 
   <!-- ABOUT -->

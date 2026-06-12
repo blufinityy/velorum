@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <link rel="icon" type="image/png" href="../images/favicon.png" />
   <meta property="og:title" content="Velorum — Apply" />
@@ -11,32 +11,95 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Velorum — Apply</title>
+
+  <!-- Set theme before first paint to avoid flash -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('velorum-theme');
+      document.documentElement.dataset.theme = (t === 'light' || t === 'dark') ? t : 'dark';
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
-    :root {
+    /* ───────────────────────── THEME TOKENS ───────────────────────── */
+    html[data-theme="dark"] {
       --brand: #9D00FF;
-      --brand-glow: rgba(157, 0, 255, 0.25);
-      --brand-dim: rgba(157, 0, 255, 0.1);
-      --bg: #0E0E11;
-      --bg2: #13131A;
-      --bg3: #18181F;
-      --white: #FFFFFF;
-      --gray: #B5B5B5;
-      --gray-dim: #555566;
-      --border: rgba(255,255,255,0.07);
-      --border-focus: rgba(157, 0, 255, 0.5);
+      --brand-bright: #B84DFF;
+      --bg: #0A0A0F;
+      --bg2: #0E0E15;
+      --surface: rgba(255, 255, 255, 0.035);
+      --surface-solid: #12121B;
+      --field-bg: #14141E;
+      --text: #F4F4F8;
+      --muted: #A0A0B2;
+      --faint: #5C5C70;
+      --border: rgba(255, 255, 255, 0.08);
+      --border-brand: rgba(157, 0, 255, 0.35);
+      --border-focus: rgba(157, 0, 255, 0.55);
+      --glow: rgba(157, 0, 255, 0.18);
+      --dim: rgba(157, 0, 255, 0.10);
+      --dot: rgba(255, 255, 255, 0.06);
+      --nav-bg: rgba(10, 10, 15, 0.72);
       --error: #ff4d4d;
     }
+    html[data-theme="light"] {
+      --brand: #8400D6;
+      --brand-bright: #9D00FF;
+      --bg: #FAFAFD;
+      --bg2: #F2F2F8;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-solid: #FFFFFF;
+      --field-bg: #FFFFFF;
+      --text: #111118;
+      --muted: #4C4C60;
+      --faint: #9292A4;
+      --border: rgba(17, 17, 40, 0.10);
+      --border-brand: rgba(132, 0, 214, 0.35);
+      --border-focus: rgba(132, 0, 214, 0.55);
+      --glow: rgba(157, 0, 255, 0.10);
+      --dim: rgba(157, 0, 255, 0.07);
+      --dot: rgba(17, 17, 40, 0.10);
+      --nav-bg: rgba(250, 250, 253, 0.78);
+      --error: #e02b2b;
+    }
+
+    /* Theme-specific logo swap */
+    .logo-light { display: none !important; }
+    html[data-theme="light"] .logo-light { display: block !important; }
+    html[data-theme="light"] .logo-dark { display: none !important; }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
-      color: var(--white);
-      font-family: 'Montserrat', Arial, sans-serif;
+      color: var(--text);
+      font-family: 'Inter', Arial, sans-serif;
       font-size: 16px;
       line-height: 1.7;
       overflow-x: hidden;
+      transition: background-color 0.35s ease, color 0.35s ease;
+    }
+    ::selection { background: var(--brand); color: #fff; }
+
+    .dot-field {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(var(--dot) 1px, transparent 1px);
+      background-size: 28px 28px;
+      mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 0%, transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .page-aurora {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 50% 35% at 50% 0%, var(--glow) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
     }
     body::before {
       content: '';
@@ -44,116 +107,408 @@
       inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
       pointer-events: none;
-      z-index: 1000;
-      opacity: 0.4;
+      z-index: 1001;
+      opacity: 0.35;
     }
+    main { position: relative; z-index: 1; }
+
+    /* ───────────────────────── NAV ───────────────────────── */
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 999;
-      padding: 0 60px; height: 70px;
+      padding: 0 56px; height: 68px;
       display: flex; align-items: center; justify-content: space-between;
-      background: rgba(14,14,17,0.9);
-      backdrop-filter: blur(20px);
+      background: var(--nav-bg);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border-bottom: 1px solid var(--border);
+      transition: background-color 0.35s ease, border-color 0.35s ease;
+    }
+    .nav-logo { display: flex; align-items: center; text-decoration: none; }
+    .nav-logo img {
+      height: 34px; display: block;
+    }
+    .nav-right { display: flex; align-items: center; gap: 20px; }
+    .nav-back {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      display: flex; align-items: center; gap: 8px; transition: color 0.2s;
+    }
+    .nav-back:hover { color: var(--text); }
+    .nav-back::before { content: '←'; font-size: 14px; }
+    .theme-toggle {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.2s;
+      padding: 0;
+    }
+    .theme-toggle:hover { border-color: var(--border-brand); }
+    .theme-toggle svg { width: 17px; height: 17px; fill: var(--muted); transition: fill 0.2s; }
+    .theme-toggle:hover svg { fill: var(--brand-bright); }
+    html[data-theme="dark"] .icon-sun { display: block; }
+    html[data-theme="dark"] .icon-moon { display: none; }
+    html[data-theme="light"] .icon-sun { display: none; }
+    html[data-theme="light"] .icon-moon { display: block; }
+
+    /* ───────────────────────── HEADER ───────────────────────── */
+    .page-header { padding: 140px 56px 56px; max-width: 1200px; margin: 0 auto; }
+    .page-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--brand-bright); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .page-label::before { content: ''; width: 28px; height: 1px; background: var(--brand); }
+    .page-heading { font-size: clamp(32px, 4vw, 54px); font-weight: 800; letter-spacing: -0.03em; margin-bottom: 16px; line-height: 1.08; }
+    .page-sub { font-size: 15px; color: var(--muted); max-width: 560px; line-height: 1.75; }
+
+    /* ───────────────────────── WIZARD SHELL ───────────────────────── */
+    .form-wrap {
+      max-width: 1200px; margin: 0 auto;
+      padding: 20px 56px 120px;
+      display: grid; grid-template-columns: 1fr 320px; gap: 56px;
+      align-items: start;
+    }
+    .wizard {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 40px 44px 44px;
+      overflow: hidden;
+      transition: background-color 0.35s, border-color 0.35s;
+    }
+    .wizard::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(520px circle at var(--mx, 30%) var(--my, 0%), var(--glow), transparent 70%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .wizard > * { position: relative; }
+
+    /* Progress rail */
+    .wiz-progress {
+      display: flex;
+      align-items: center;
+      margin-bottom: 38px;
+    }
+    .wiz-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      cursor: default;
+    }
+    .wiz-dot {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--field-bg);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600;
+      color: var(--faint);
+      transition: border-color 0.3s, background 0.3s, color 0.3s, box-shadow 0.3s;
+    }
+    .wiz-node .wiz-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--faint);
+      transition: color 0.3s;
+      white-space: nowrap;
+    }
+    .wiz-node.active .wiz-dot {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+      box-shadow: 0 0 18px var(--glow);
+    }
+    .wiz-node.active .wiz-name { color: var(--brand-bright); }
+    .wiz-node.done .wiz-dot {
+      border-color: var(--border-brand);
+      color: var(--brand-bright);
+      background: var(--dim);
+    }
+    .wiz-node.done .wiz-name { color: var(--muted); }
+    .wiz-node.done { cursor: pointer; }
+    .wiz-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 10px;
+      margin-bottom: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+    .wiz-line::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--brand);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .wiz-line.filled::after { transform: scaleX(1); }
+
+    /* Steps */
+    .wiz-step { display: none; }
+    .wiz-step.active { display: flex; flex-direction: column; gap: 26px; animation: stepIn 0.35s ease; }
+    @keyframes stepIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .wiz-step-heading {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--brand-bright);
+      padding-bottom: 14px;
       border-bottom: 1px solid var(--border);
     }
-    .nav-logo { font-size: 20px; font-weight: 800; color: var(--brand); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; }
-    .nav-logo img { height: 36px; display: block; }
-    .nav-back { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.2s; }
-    .nav-back:hover { color: var(--white); }
-    .nav-back::before { content: '←'; font-size: 14px; }
-    .page-header { padding: 140px 60px 70px; max-width: 1200px; margin: 0 auto; border-bottom: 1px solid var(--border); }
-    .page-label { font-size: 11px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; color: var(--brand); margin-bottom: 18px; }
-    .page-heading { font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; line-height: 1.1; }
-    .page-sub { font-size: 15px; color: var(--gray); max-width: 560px; line-height: 1.75; }
-    .form-wrap { max-width: 1200px; margin: 0 auto; padding: 60px 60px 120px; display: grid; grid-template-columns: 1fr 320px; gap: 60px; align-items: start; }
-    form { display: flex; flex-direction: column; gap: 48px; }
-    .form-section { display: flex; flex-direction: column; gap: 24px; }
-    .form-section-heading { font-size: 13px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--brand); padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .req { color: var(--brand); }
-    .opt { color: var(--gray-dim); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; }
-    .field input, .field textarea, .field select {
-      background: var(--bg3); border: 1px solid var(--border); border-radius: 6px;
-      color: var(--white); font-family: 'Montserrat', Arial, sans-serif;
-      font-size: 14px; padding: 14px 16px; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s; appearance: none;
+    .wiz-nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      margin-top: 12px;
     }
-    .field input::placeholder, .field textarea::placeholder { color: var(--gray-dim); }
-    .field input:focus, .field textarea:focus, .field select:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(157,0,255,0.08); }
-    .field input.invalid, .field textarea.invalid, .field select.invalid { border-color: var(--error) !important; box-shadow: 0 0 0 3px rgba(255,77,77,0.1) !important; }
+    .btn-next, .btn-submit {
+      background: var(--brand);
+      color: #fff;
+      padding: 15px 36px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      transition: box-shadow 0.25s, transform 0.2s;
+    }
+    .btn-next:hover, .btn-submit:hover {
+      box-shadow: 0 0 28px var(--glow), 0 6px 20px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+    }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-back {
+      background: transparent;
+      color: var(--muted);
+      padding: 15px 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-back:hover { border-color: var(--border-brand); color: var(--text); }
+
+    /* ───────────────────────── FIELDS ───────────────────────── */
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted);
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .req { color: var(--brand-bright); }
+    .opt { color: var(--faint); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 10px; }
+    .field input, .field textarea, .field select {
+      background: var(--field-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: 'Inter', Arial, sans-serif;
+      font-size: 14px; padding: 14px 16px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.35s;
+      appearance: none;
+    }
+    .field input::placeholder, .field textarea::placeholder { color: var(--faint); }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--dim);
+    }
+    .field input.invalid, .field textarea.invalid, .field select.invalid {
+      border-color: var(--error) !important;
+      box-shadow: 0 0 0 3px rgba(255,77,77,0.1) !important;
+    }
     .field textarea { resize: vertical; min-height: 140px; line-height: 1.7; }
-    .field-helper { font-size: 11px; color: var(--gray-dim); line-height: 1.6; }
+    .field-helper { font-size: 11px; color: var(--faint); line-height: 1.6; }
     .field-error { font-size: 11px; color: var(--error); display: none; }
     .field-error.visible { display: block; }
-    .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     .pct-wrap { position: relative; }
-    .pct-wrap input { padding-right: 40px; }
-    .pct-symbol { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--gray-dim); font-weight: 600; pointer-events: none; }
-    .checkbox-group { display: flex; flex-direction: column; gap: 14px; }
+    .pct-wrap input { padding-right: 40px; width: 100%; }
+    .pct-symbol { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--faint); font-weight: 600; pointer-events: none; }
+
+    /* Backing checkboxes */
+    .checkbox-group { display: flex; flex-direction: column; gap: 12px; }
     .checkbox-item {
       display: flex; align-items: flex-start; gap: 14px; cursor: pointer;
-      padding: 16px 18px; background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 8px; transition: border-color 0.2s, background 0.2s;
+      padding: 16px 18px;
+      background: var(--field-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .checkbox-item:hover { border-color: rgba(157,0,255,0.25); background: rgba(157,0,255,0.04); }
-    .checkbox-item.checked { border-color: rgba(157,0,255,0.5); background: rgba(157,0,255,0.08); }
+    .checkbox-item:hover { border-color: var(--border-brand); background: var(--dim); }
+    .checkbox-item.checked { border-color: var(--border-focus); background: var(--dim); }
     .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
     .checkbox-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-    .checkbox-desc { font-size: 12px; color: var(--gray); line-height: 1.6; }
-    .checkbox-note { font-size: 12px; color: var(--gray-dim); }
+    .checkbox-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .checkbox-note { font-size: 12px; color: var(--faint); }
     .backing-error { font-size: 12px; color: var(--error); display: none; }
     .backing-error.visible { display: block; }
     .robux-reveal {
       display: none;
-      margin-top: -8px;
+      margin-top: -6px;
       padding: 22px 20px;
-      background: rgba(157,0,255,0.06);
-      border: 1px solid rgba(157,0,255,0.25);
+      background: var(--dim);
+      border: 1px solid var(--border-brand);
       border-top: none;
-      border-radius: 0 0 8px 8px;
+      border-radius: 0 0 10px 10px;
     }
     .robux-reveal.visible { display: block; animation: slideDown 0.2s ease; }
-    @keyframes slideDown { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
-    .robux-label { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 10px; }
-    .upload-area { border: 1px dashed rgba(157,0,255,0.3); border-radius: 8px; padding: 28px; text-align: center; background: var(--brand-dim); cursor: pointer; transition: border-color 0.2s, background 0.2s; }
-    .upload-area:hover { border-color: var(--brand); background: rgba(157,0,255,0.08); }
+    @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+    .robux-label {
+      display: flex; align-items: center; gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+
+    /* Upload areas */
+    .upload-area {
+      border: 1px dashed var(--border-brand);
+      border-radius: 10px;
+      padding: 28px; text-align: center;
+      background: var(--dim);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .upload-area:hover { border-color: var(--brand); }
     .upload-area input[type="file"] { display: none; }
-    .upload-label { font-size: 13px; color: var(--gray); cursor: pointer; }
-    .upload-label span { color: var(--brand); font-weight: 600; }
-    .confirm-wrap { display: flex; align-items: flex-start; gap: 14px; padding: 20px; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; }
+    .upload-label { font-size: 13px; color: var(--muted); cursor: pointer; }
+    .upload-label span { color: var(--brand-bright); font-weight: 600; }
+
+    /* Review step */
+    .review-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .review-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+      padding: 13px 18px;
+      background: var(--field-bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .review-row:last-child { border-bottom: none; }
+    .review-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--faint);
+      padding-top: 2px;
+    }
+    .review-val { color: var(--text); word-break: break-word; white-space: pre-wrap; }
+    .review-val.empty { color: var(--faint); font-style: italic; }
+    .review-edit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--brand-bright);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: none; border: none; padding: 0;
+      justify-self: start;
+    }
+    .review-edit:hover { text-decoration: underline; }
+
+    .confirm-wrap {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 20px;
+      background: var(--field-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
     .confirm-wrap input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--brand); flex-shrink: 0; margin-top: 2px; }
-    .confirm-wrap label { font-size: 13px; color: var(--gray); line-height: 1.7; cursor: pointer; }
-    .submit-wrap { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
-    .btn-submit { background: var(--brand); color: var(--white); padding: 17px 42px; border: none; border-radius: 5px; font-family: 'Montserrat', Arial, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: box-shadow 0.25s, transform 0.2s; }
-    .btn-submit:hover { box-shadow: 0 0 28px var(--brand-glow), 0 6px 20px rgba(0,0,0,0.4); transform: translateY(-1px); }
-    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-    .submit-note { font-size: 12px; color: var(--gray-dim); }
-    .form-sidebar { position: sticky; top: 90px; display: flex; flex-direction: column; gap: 20px; }
-    .sidebar-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 28px; }
-    .sidebar-card-title { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--brand); margin-bottom: 14px; }
-    .sidebar-card p { font-size: 13px; color: var(--gray); line-height: 1.75; }
-    .sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .sidebar-list li { font-size: 13px; color: var(--gray); display: flex; gap: 10px; align-items: flex-start; }
-    .sidebar-list li::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--brand); flex-shrink: 0; margin-top: 8px; }
-    .success-msg { display: none; background: rgba(157,0,255,0.07); border: 1px solid rgba(157,0,255,0.3); border-radius: 10px; padding: 32px; text-align: center; }
-    .success-msg.visible { display: block; }
+    .confirm-wrap label { font-size: 13px; color: var(--muted); line-height: 1.7; cursor: pointer; }
+    .submit-note { font-size: 12px; color: var(--faint); }
+
+    .success-msg {
+      display: none;
+      background: var(--dim);
+      border: 1px solid var(--border-brand);
+      border-radius: 12px;
+      padding: 36px; text-align: center;
+    }
+    .success-msg.visible { display: block; animation: stepIn 0.35s ease; }
     .success-msg h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .success-msg p { font-size: 14px; color: var(--gray); }
+    .success-msg p { font-size: 14px; color: var(--muted); }
+
+    /* ───────────────────────── SIDEBAR ───────────────────────── */
+    .form-sidebar { position: sticky; top: 92px; display: flex; flex-direction: column; gap: 18px; }
+    .sidebar-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 26px;
+      backdrop-filter: blur(12px);
+      transition: background-color 0.35s, border-color 0.35s;
+    }
+    .sidebar-card-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--brand-bright); margin-bottom: 14px;
+    }
+    .sidebar-card p { font-size: 13px; color: var(--muted); line-height: 1.75; }
+    .sidebar-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-list li { font-size: 13px; color: var(--muted); display: flex; gap: 10px; align-items: flex-start; }
+    .sidebar-list li::before { content: '▸'; color: var(--brand-bright); font-size: 12px; flex-shrink: 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .wiz-step.active, .success-msg.visible, .robux-reveal.visible { animation: none; }
+      html { scroll-behavior: auto; }
+    }
     @media (max-width: 900px) {
-      nav { padding: 0 24px; }
-      .page-header { padding: 120px 24px 50px; }
-      .form-wrap { grid-template-columns: 1fr; padding: 40px 24px 80px; }
+      nav { padding: 0 22px; }
+      .page-header { padding: 120px 24px 40px; }
+      .form-wrap { grid-template-columns: 1fr; padding: 10px 24px 80px; }
       .form-sidebar { position: static; }
       .fields-row { grid-template-columns: 1fr; }
+      .wizard { padding: 28px 22px 32px; }
+      .wiz-node .wiz-name { display: none; }
+      .wiz-line { margin-bottom: 0; }
+      .review-row { grid-template-columns: 1fr; gap: 4px; }
     }
   </style>
 </head>
 <body>
 
+  <div class="page-aurora" aria-hidden="true"></div>
+  <div class="dot-field" aria-hidden="true"></div>
+
   <nav>
-    <a href="/home" class="nav-logo"><img src="../images/whitefulllogo.png" alt="Velorum" /></a>
-    <a href="/home" class="nav-back">Back to Home</a>
+    <a href="/home" class="nav-logo">
+      <img class="logo-dark" src="../images/whitefulllogo.png" alt="Velorum" />
+      <img class="logo-light" src="../images/blackfulllogo.png" alt="Velorum" />
+    </a>
+    <div class="nav-right">
+      <a href="/home" class="nav-back">Back to Home</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle color theme">
+        <svg class="icon-sun" viewBox="0 0 24 24"><path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0-.39.39-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0 .39-.39.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+      </button>
+    </div>
   </nav>
+
+  <main>
 
   <div class="page-header">
     <div class="page-label">Partnership Application</div>
@@ -162,15 +517,28 @@
   </div>
 
   <div class="form-wrap">
-    <form id="applyForm" novalidate onsubmit="handleSubmit(event)">
+    <form id="applyForm" class="wizard" novalidate onsubmit="handleSubmit(event)">
 
-      <!-- SECTION 1 -->
-      <div class="form-section">
-        <div class="form-section-heading">Applicant Information</div>
+      <!-- PROGRESS RAIL -->
+      <div class="wiz-progress" id="wizProgress">
+        <div class="wiz-node" data-step="0"><div class="wiz-dot">1</div><div class="wiz-name">Applicant</div></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-node" data-step="1"><div class="wiz-dot">2</div><div class="wiz-name">Backing</div></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-node" data-step="2"><div class="wiz-dot">3</div><div class="wiz-name">Project</div></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-node" data-step="3"><div class="wiz-dot">4</div><div class="wiz-name">Media</div></div>
+        <div class="wiz-line"></div>
+        <div class="wiz-node" data-step="4"><div class="wiz-dot">5</div><div class="wiz-name">Review</div></div>
+      </div>
+
+      <!-- STEP 1 — APPLICANT -->
+      <div class="wiz-step active" data-step="0">
+        <div class="wiz-step-heading">01 / Applicant Information</div>
         <div class="fields-row">
           <div class="field">
             <label>Full Name <span class="opt">Optional</span></label>
-            <input type="text" placeholder="Your name" maxlength="100" />
+            <input type="text" id="nameInput" placeholder="Your name" maxlength="100" />
           </div>
           <div class="field">
             <label>Email Address <span class="req">*</span></label>
@@ -192,15 +560,22 @@
         </div>
         <div class="field">
           <label>Portfolio / Experience Link <span class="opt">Optional</span></label>
-          <input type="url" placeholder="https://" maxlength="500" />
+          <input type="url" id="portfolioInput" placeholder="https://" maxlength="500" />
           <span class="field-helper">Link to previous games, portfolio, or relevant work if applicable.</span>
+        </div>
+        <div class="wiz-nav-row">
+          <span></span>
+          <button type="button" class="btn-next" data-next>Continue &rarr;</button>
         </div>
       </div>
 
-      <!-- SECTION 2 -->
-      <div class="form-section">
-        <div class="form-section-heading">What type of backing are you seeking? <span class="req">*</span></div>
-        <div class="checkbox-group">
+      <!-- STEP 2 — BACKING & TERMS -->
+      <div class="wiz-step" data-step="1">
+        <div class="wiz-step-heading">02 / Backing &amp; Terms</div>
+        <div class="field">
+          <label>What type of backing are you seeking? <span class="req">*</span></label>
+        </div>
+        <div class="checkbox-group" style="margin-top:-14px;">
 
           <label class="checkbox-item" id="capitalLabel">
             <input type="checkbox" name="support" value="capital" id="capitalCheck" />
@@ -224,7 +599,7 @@
               <div style="position:relative;">
                 <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);display:flex;align-items:center;pointer-events:none;">
                   <img src="../images/robuxlogo.png" alt="R$" style="width:18px;height:18px;object-fit:contain;" onerror="this.style.display='none';this.nextSibling.style.display='inline';" />
-                  <span style="display:none;color:var(--gray-dim);font-weight:700;font-size:13px;">R$</span>
+                  <span style="display:none;color:var(--faint);font-weight:700;font-size:13px;">R$</span>
                 </span>
                 <input type="number" id="robuxAmount" min="1" placeholder="e.g. 50000" style="width:100%;padding-left:42px;" />
               </div>
@@ -250,14 +625,10 @@
           </label>
         </div>
         <span class="backing-error" id="backingError">Please select at least one type of backing.</span>
-        <p class="checkbox-note">Select all that apply.</p>
-      </div>
+        <p class="checkbox-note" style="margin-top:-14px;">Select all that apply.</p>
 
-      <!-- SECTION 3 -->
-      <div class="form-section">
-        <div class="form-section-heading">Proposed Revenue Share</div>
         <div class="field">
-          <label>Revenue Share Percentage <span class="req">*</span></label>
+          <label>Proposed Revenue Share <span class="req">*</span></label>
           <div class="pct-wrap">
             <input type="number" id="revenueInput" min="0" max="100" step="0.1" placeholder="e.g. 15" />
             <span class="pct-symbol">%</span>
@@ -265,45 +636,40 @@
           <span class="field-error" id="revenueError">A proposed revenue share percentage is required.</span>
           <span class="field-helper">Velorum structures partnerships through revenue-sharing agreements. Indicate the percentage of game revenue you are willing to allocate in exchange for support. Final terms are determined following evaluation.</span>
         </div>
+
+        <div class="wiz-nav-row">
+          <button type="button" class="btn-back" data-back>&larr; Back</button>
+          <button type="button" class="btn-next" data-next>Continue &rarr;</button>
+        </div>
       </div>
 
-      <!-- SECTION 4 -->
-      <div class="form-section">
-        <div class="form-section-heading">Project Overview</div>
+      <!-- STEP 3 — PROJECT -->
+      <div class="wiz-step" data-step="2">
+        <div class="wiz-step-heading">03 / Project Overview</div>
         <div class="field">
           <label>Project Description <span class="req">*</span></label>
           <textarea id="overviewInput" placeholder="Describe your game, its development stage, team structure, target audience, and long-term goals. If your game is live, include visits, CCU, retention, or revenue metrics. If unreleased, describe your design vision and monetization strategy." style="min-height:200px;"></textarea>
           <span class="field-error" id="overviewError">A project overview is required.</span>
         </div>
-      </div>
-
-      <!-- SECTION 4.5 -->
-      <div class="form-section">
-        <div class="form-section-heading">Capital & Support Allocation Plan</div>
         <div class="field">
-          <label>Allocation Plan <span class="req">*</span></label>
+          <label>Capital &amp; Support Allocation Plan <span class="req">*</span></label>
           <textarea id="allocationInput" placeholder="Clearly describe what you are seeking from Velorum and how you plan to utilize our support. Specify how capital, monetization infrastructure, and/or advertising strategy would be deployed, and outline the expected impact on your project's growth." style="min-height:180px;"></textarea>
           <span class="field-error" id="allocationError">Please describe your capital and support allocation plan.</span>
         </div>
-      </div>
-
-      <!-- SECTION 5 -->
-      <div class="form-section">
-        <div class="form-section-heading">Metrics Snapshot</div>
         <div class="fields-row">
           <div class="field">
             <label>Total Visits <span class="opt">If live</span></label>
-            <input type="text" placeholder="e.g. 1,200,000" maxlength="50" />
+            <input type="text" id="visitsInput" placeholder="e.g. 1,200,000" maxlength="50" />
           </div>
           <div class="field">
             <label>Average CCU <span class="opt">If live</span></label>
-            <input type="text" placeholder="e.g. 400" maxlength="50" />
+            <input type="text" id="ccuInput" placeholder="e.g. 400" maxlength="50" />
           </div>
         </div>
         <div class="fields-row">
           <div class="field">
             <label>Monthly Revenue <span class="opt">Optional</span></label>
-            <input type="text" placeholder="e.g. $2,000" maxlength="50" />
+            <input type="text" id="monthlyRevenueInput" placeholder="e.g. $2,000" maxlength="50" />
           </div>
           <div class="field">
             <label>Development Stage <span class="req">*</span></label>
@@ -317,17 +683,21 @@
             <span class="field-error" id="stageError">Please select your development stage.</span>
           </div>
         </div>
-        <p style="font-size:12px;color:var(--gray-dim);">Metrics are not required for unreleased projects.</p>
+        <p style="font-size:12px;color:var(--faint);">Metrics are not required for unreleased projects.</p>
+        <div class="wiz-nav-row">
+          <button type="button" class="btn-back" data-back>&larr; Back</button>
+          <button type="button" class="btn-next" data-next>Continue &rarr;</button>
+        </div>
       </div>
 
-      <!-- SECTION 6 -->
-      <div class="form-section">
-        <div class="form-section-heading">Media & Supporting Materials</div>
+      <!-- STEP 4 — MEDIA -->
+      <div class="wiz-step" data-step="3">
+        <div class="wiz-step-heading">04 / Media &amp; Supporting Materials</div>
         <div class="field">
           <label>Screenshots <span class="opt">Optional — max 10</span></label>
           <div class="upload-area" onclick="document.getElementById('screenshots').click()">
             <input type="file" id="screenshots" accept="image/*" multiple />
-            <p class="upload-label"><span>Choose files</span> or drag and drop<br><span style="font-size:11px;color:var(--gray-dim);font-weight:400;">PNG, JPG, WEBP — max 8MB total</span></p>
+            <p class="upload-label"><span>Choose files</span> or drag and drop<br><span style="font-size:11px;color:var(--faint);font-weight:400;">PNG, JPG, WEBP — max 8MB total</span></p>
           </div>
         </div>
         <div class="field">
@@ -339,36 +709,43 @@
           <label>Pitch Deck <span class="opt">Optional</span></label>
           <div class="upload-area" onclick="document.getElementById('pitchdeck').click()">
             <input type="file" id="pitchdeck" accept=".pdf,.ppt,.pptx" />
-            <p class="upload-label"><span>Choose file</span> or drag and drop<br><span style="font-size:11px;color:var(--gray-dim);font-weight:400;">PDF, PPT accepted</span></p>
+            <p class="upload-label"><span>Choose file</span> or drag and drop<br><span style="font-size:11px;color:var(--faint);font-weight:400;">PDF, PPT accepted</span></p>
           </div>
         </div>
         <span class="field-helper">Uploading a pitch deck reduces the screenshot limit to 9 to stay within Discord's file size limit.</span>
+        <div class="wiz-nav-row">
+          <button type="button" class="btn-back" data-back>&larr; Back</button>
+          <button type="button" class="btn-next" data-next>Review Application &rarr;</button>
+        </div>
       </div>
 
-      <!-- SECTION 7 -->
-      <div class="form-section">
-        <div class="form-section-heading">Confirmation</div>
+      <!-- STEP 5 — REVIEW & SUBMIT -->
+      <div class="wiz-step" data-step="4">
+        <div class="wiz-step-heading">05 / Review &amp; Submit</div>
+        <div class="review-list" id="reviewList"></div>
+
         <div class="confirm-wrap">
           <input type="checkbox" id="confirm" />
           <label for="confirm">I understand that submission does not guarantee partnership and that revenue-sharing terms are finalized through formal agreement.</label>
         </div>
         <span class="field-error" id="confirmError">You must confirm before submitting.</span>
-      </div>
 
-      <!-- SPAM ERROR -->
-      <div id="spamError" style="display:none; background:rgba(255,77,77,0.07); border:1px solid rgba(255,77,77,0.3); border-radius:8px; padding:20px; font-size:13px; color:#ff4d4d;">
-        You have already submitted an application within the last 72 hours. Please wait before applying again.
-      </div>
+        <div id="spamError" style="display:none; background:rgba(255,77,77,0.07); border:1px solid rgba(255,77,77,0.3); border-radius:10px; padding:20px; font-size:13px; color:var(--error);">
+          You have already submitted an application within the last 72 hours. Please wait before applying again.
+        </div>
 
-      <!-- SUBMIT -->
-      <div class="submit-wrap">
-        <button type="submit" class="btn-submit">Submit Application</button>
-        <span class="submit-note">Applications are typically reviewed within 5–7 business days.</span>
-      </div>
+        <div class="wiz-nav-row submit-wrap">
+          <button type="button" class="btn-back" data-back>&larr; Back</button>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+            <button type="submit" class="btn-submit">Submit Application</button>
+            <span class="submit-note">Applications are typically reviewed within 5–7 business days.</span>
+          </div>
+        </div>
 
-      <div class="success-msg" id="successMsg">
-        <h3>Application Submitted</h3>
-        <p>Your application has been received. A confirmation email has been sent to your inbox — please star or save it, as any future correspondence regarding your application will come from that same email thread.</p>
+        <div class="success-msg" id="successMsg">
+          <h3>Application Submitted</h3>
+          <p>Your application has been received. A confirmation email has been sent to your inbox — please star or save it, as any future correspondence regarding your application will come from that same email thread.</p>
+        </div>
       </div>
 
     </form>
@@ -386,29 +763,172 @@
       </div>
       <div class="sidebar-card">
         <div class="sidebar-card-title">Review Timeline</div>
-        <p>All applications are reviewed within <strong style="color:var(--white);">5–7 business days</strong>. We'll reach out via Discord or email if selected for further evaluation.</p>
+        <p>All applications are reviewed within <strong style="color:var(--text);">5–7 business days</strong>. We'll reach out via Discord or email if selected for further evaluation.</p>
       </div>
       <div class="sidebar-card">
         <div class="sidebar-card-title">Questions?</div>
-        <p>Email us at <a href="mailto:contact@velorum.dev" style="color:var(--brand);text-decoration:none;">contact@velorum.dev</a></p>
+        <p>Email us at <a href="mailto:contact@velorum.dev" style="color:var(--brand-bright);text-decoration:none;">contact@velorum.dev</a></p>
       </div>
     </aside>
   </div>
 
+  </main>
+
   <script>
+    // ── THEME TOGGLE ──
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      localStorage.setItem('velorum-theme', next);
+    });
+
+    // ── CURSOR GLOW ON WIZARD PANEL ──
+    const wizardEl = document.querySelector('.wizard');
+    wizardEl.addEventListener('pointermove', e => {
+      const r = wizardEl.getBoundingClientRect();
+      wizardEl.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      wizardEl.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+
+    // ══════════════════════ WIZARD ENGINE ══════════════════════
+    const steps = [...document.querySelectorAll('.wiz-step')];
+    const nodes = [...document.querySelectorAll('.wiz-node')];
+    const lines = [...document.querySelectorAll('.wiz-line')];
+    let currentStep = 0;
+
+    // Required validations per step: [inputId, errorId, validFn]
+    const STEP_VALIDATORS = {
+      0: () => {
+        let ok = true;
+        const email = document.getElementById('emailInput');
+        if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) { setError('emailInput','emailError',true); ok = false; }
+        const discord = document.getElementById('discordInput');
+        if (!discord.value.trim()) { setError('discordInput','discordError',true); ok = false; }
+        const roblox = document.getElementById('robloxInput');
+        if (!roblox.value.trim()) { setError('robloxInput','robloxError',true); ok = false; }
+        return ok;
+      },
+      1: () => {
+        let ok = true;
+        const anyBacking = document.querySelectorAll('input[name="support"]:checked').length > 0;
+        if (!anyBacking) { document.getElementById('backingError').classList.add('visible'); ok = false; }
+        if (document.getElementById('capitalCheck').checked) {
+          const robux = document.getElementById('robuxAmount');
+          if (!robux.value || Number(robux.value) < 1) { setError('robuxAmount','robuxError',true); ok = false; }
+        }
+        const revenue = document.getElementById('revenueInput');
+        if (!revenue.value.trim()) { setError('revenueInput','revenueError',true); ok = false; }
+        return ok;
+      },
+      2: () => {
+        let ok = true;
+        const overview = document.getElementById('overviewInput');
+        if (!overview.value.trim()) { setError('overviewInput','overviewError',true); ok = false; }
+        const allocation = document.getElementById('allocationInput');
+        if (!allocation.value.trim()) { setError('allocationInput','allocationError',true); ok = false; }
+        const stage = document.getElementById('stageSelect');
+        if (!stage.value) { setError('stageSelect','stageError',true); ok = false; }
+        return ok;
+      },
+      3: () => true, // media is optional
+    };
+
+    function goToStep(n) {
+      if (n === 4) buildReview();
+      currentStep = n;
+      steps.forEach(s => s.classList.toggle('active', Number(s.dataset.step) === n));
+      nodes.forEach((node, i) => {
+        node.classList.toggle('active', i === n);
+        node.classList.toggle('done', i < n);
+      });
+      lines.forEach((line, i) => line.classList.toggle('filled', i < n));
+      wizardEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function tryAdvance() {
+      const validate = STEP_VALIDATORS[currentStep];
+      if (validate && !validate()) {
+        const firstInvalid = steps[currentStep].querySelector('.invalid, .backing-error.visible, .field-error.visible');
+        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (currentStep < steps.length - 1) goToStep(currentStep + 1);
+    }
+
+    document.querySelectorAll('[data-next]').forEach(btn => btn.addEventListener('click', tryAdvance));
+    document.querySelectorAll('[data-back]').forEach(btn => btn.addEventListener('click', () => {
+      if (currentStep > 0) goToStep(currentStep - 1);
+    }));
+    // Completed progress nodes are clickable to jump back
+    nodes.forEach((node, i) => node.addEventListener('click', () => {
+      if (i < currentStep) goToStep(i);
+    }));
+
+    // Enter advances instead of submitting early
+    document.querySelectorAll('.wiz-step input').forEach(input => {
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && currentStep < steps.length - 1) {
+          e.preventDefault();
+          tryAdvance();
+        }
+      });
+    });
+
+    // ── REVIEW SUMMARY ──
+    function reviewRow(key, val, stepIdx) {
+      const safe = (val || '').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      return `
+        <div class="review-row">
+          <div>
+            <div class="review-key">${key}</div>
+            <button type="button" class="review-edit" data-jump="${stepIdx}">Edit</button>
+          </div>
+          <div class="review-val ${val ? '' : 'empty'}">${safe || 'Not provided'}</div>
+        </div>`;
+    }
+
+    function buildReview() {
+      const backing = [...document.querySelectorAll('input[name="support"]:checked')].map(el => el.value).join(', ');
+      const screenshotCount = document.getElementById('screenshots').files.length;
+      const pitchdeckFile = document.getElementById('pitchdeck').files[0];
+      const mediaSummary = [
+        screenshotCount ? `${screenshotCount} screenshot(s)` : '',
+        pitchdeckFile ? `Pitch deck: ${pitchdeckFile.name}` : '',
+        document.getElementById('youtubeLink').value ? 'Gameplay video linked' : '',
+      ].filter(Boolean).join(' · ');
+
+      document.getElementById('reviewList').innerHTML = [
+        reviewRow('Name', document.getElementById('nameInput').value.trim(), 0),
+        reviewRow('Email', document.getElementById('emailInput').value.trim(), 0),
+        reviewRow('Discord', document.getElementById('discordInput').value.trim(), 0),
+        reviewRow('Roblox', document.getElementById('robloxInput').value.trim(), 0),
+        reviewRow('Backing', backing, 1),
+        document.getElementById('capitalCheck').checked
+          ? reviewRow('Robux Requested', document.getElementById('robuxAmount').value, 1) : '',
+        reviewRow('Revenue Share', document.getElementById('revenueInput').value ? document.getElementById('revenueInput').value + '%' : '', 1),
+        reviewRow('Stage', document.getElementById('stageSelect').value, 2),
+        reviewRow('Project Overview', document.getElementById('overviewInput').value.trim(), 2),
+        reviewRow('Allocation Plan', document.getElementById('allocationInput').value.trim(), 2),
+        reviewRow('Media', mediaSummary, 3),
+      ].join('');
+
+      document.querySelectorAll('.review-edit').forEach(btn =>
+        btn.addEventListener('click', () => goToStep(Number(btn.dataset.jump))));
+    }
+
     // ── Character counters ──
     function addCharCounter(inputId, limit) {
       const el = document.getElementById(inputId);
       if (!el) return;
       const counter = document.createElement('span');
-      counter.style.cssText = 'font-size:11px;color:var(--gray-dim);text-align:right;display:block;margin-top:2px;';
+      counter.style.cssText = 'font-size:11px;color:var(--faint);text-align:right;display:block;margin-top:2px;';
       counter.textContent = `0 / ${limit}`;
       el.parentNode.appendChild(counter);
       el.setAttribute('maxlength', limit);
       el.addEventListener('input', () => {
         const len = el.value.length;
         counter.textContent = `${len} / ${limit}`;
-        counter.style.color = len > limit * 0.9 ? '#ff4d4d' : 'var(--gray-dim)';
+        counter.style.color = len > limit * 0.9 ? 'var(--error)' : 'var(--faint)';
       });
     }
     addCharCounter('overviewInput', 2000);
@@ -483,13 +1003,13 @@
         this.value = ''; return;
       }
       this.closest('.upload-area').querySelector('.upload-label').innerHTML =
-        `<span style="color:var(--brand)">${files.length} file(s) selected</span>`;
+        `<span style="color:var(--brand-bright)">${files.length} file(s) selected</span>`;
     });
 
     document.getElementById('pitchdeck').addEventListener('change', function() {
       if (this.files.length > 0) {
         this.closest('.upload-area').querySelector('.upload-label').innerHTML =
-          `<span style="color:var(--brand)">1 file selected</span>`;
+          `<span style="color:var(--brand-bright)">1 file selected</span>`;
         if (document.getElementById('screenshots').files.length >= 10) {
           alert('You have 10 screenshots selected. With a pitch deck attached the max is 9 — please reselect your screenshots.');
         }
@@ -498,45 +1018,42 @@
 
     // ── Drag and drop ──
     document.querySelectorAll('.upload-area').forEach(area => {
-    area.addEventListener('dragover', e => {
-      e.preventDefault();
-      area.style.borderColor = 'var(--brand)';
-      area.style.background = 'rgba(157,0,255,0.08)';
-    });
-
-    area.addEventListener('dragleave', () => {
-      area.style.borderColor = '';
-      area.style.background = '';
-    });
-
-    area.addEventListener('drop', e => {
-      e.preventDefault();
-      area.style.borderColor = '';
-      area.style.background = '';
-
-      const input = area.querySelector('input[type="file"]');
-      if (!input) return;
-
-      const files = e.dataTransfer.files;
-      if (!files.length) return;
-
-      // Transfer files to the input
-      const dt = new DataTransfer();
-      const accepted = input.accept.split(',').map(s => s.trim());
-
-      [...files].forEach(file => {
-        const matchesMime = accepted.some(a => {
-          if (a.startsWith('.')) return file.name.toLowerCase().endsWith(a);
-          if (a.endsWith('/*')) return file.type.startsWith(a.replace('/*', '/'));
-          return file.type === a;
-        });
-        if (matchesMime) dt.items.add(file);
+      area.addEventListener('dragover', e => {
+        e.preventDefault();
+        area.style.borderColor = 'var(--brand)';
+        area.style.background = 'var(--dim)';
       });
+      area.addEventListener('dragleave', () => {
+        area.style.borderColor = '';
+        area.style.background = '';
+      });
+      area.addEventListener('drop', e => {
+        e.preventDefault();
+        area.style.borderColor = '';
+        area.style.background = '';
 
-      input.files = dt.files;
-      input.dispatchEvent(new Event('change'));
+        const input = area.querySelector('input[type="file"]');
+        if (!input) return;
+
+        const files = e.dataTransfer.files;
+        if (!files.length) return;
+
+        const dt = new DataTransfer();
+        const accepted = input.accept.split(',').map(s => s.trim());
+
+        [...files].forEach(file => {
+          const matchesMime = accepted.some(a => {
+            if (a.startsWith('.')) return file.name.toLowerCase().endsWith(a);
+            if (a.endsWith('/*')) return file.type.startsWith(a.replace('/*', '/'));
+            return file.type === a;
+          });
+          if (matchesMime) dt.items.add(file);
+        });
+
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+      });
     });
-  });
 
     // ── Helpers ──
     function setError(inputId, errorId, show) {
@@ -594,48 +1111,16 @@
         return;
       }
 
-      let valid = true;
-
-      const email = document.getElementById('emailInput');
-      if (!email.value.trim() || !/\S+@\S+\.\S+/.test(email.value)) { setError('emailInput','emailError',true); valid = false; }
-
-      const discord = document.getElementById('discordInput');
-      if (!discord.value.trim()) { setError('discordInput','discordError',true); valid = false; }
-
-      const roblox = document.getElementById('robloxInput');
-      if (!roblox.value.trim()) { setError('robloxInput','robloxError',true); valid = false; }
-
-      const anyBacking = document.querySelectorAll('input[name="support"]:checked').length > 0;
-      if (!anyBacking) { document.getElementById('backingError').classList.add('visible'); valid = false; }
-
-      if (capitalCheck.checked) {
-        const robux = document.getElementById('robuxAmount');
-        if (!robux.value || Number(robux.value) < 1) { setError('robuxAmount','robuxError',true); valid = false; }
+      // Full validation pass (all steps) in case anything was bypassed
+      for (const [stepIdx, validate] of Object.entries(STEP_VALIDATORS)) {
+        if (!validate()) { goToStep(Number(stepIdx)); return; }
       }
-
-      const revenue = document.getElementById('revenueInput');
-      if (!revenue.value.trim()) { setError('revenueInput','revenueError',true); valid = false; }
-
-      const overview = document.getElementById('overviewInput');
-      if (!overview.value.trim()) { setError('overviewInput','overviewError',true); valid = false; }
-
-      const allocation = document.getElementById('allocationInput');
-      if (!allocation.value.trim()) { setError('allocationInput','allocationError',true); valid = false; }
-
-      const stage = document.getElementById('stageSelect');
-      if (!stage.value) { setError('stageSelect','stageError',true); valid = false; }
 
       const confirm = document.getElementById('confirm');
       const confirmError = document.getElementById('confirmError');
       if (!confirm.checked) {
         confirmError.classList.add('visible');
         confirmError.style.display = 'block';
-        valid = false;
-      }
-
-      if (!valid) {
-        const firstInvalid = document.querySelector('.invalid, .backing-error.visible, .field-error.visible');
-        if (firstInvalid) firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
 
@@ -648,14 +1133,14 @@
       loadingDiv.id = 'loadingBar';
       loadingDiv.innerHTML = `
         <div style="margin-top:16px;">
-          <p style="font-size:12px;color:var(--gray);margin-bottom:6px;letter-spacing:0.05em;">Please wait — your application is being submitted. Do not close this page.</p>
-          <p id="uploadStatus" style="font-size:11px;color:var(--gray-dim);margin-bottom:10px;">Preparing your application...</p>
-          <div style="width:100%;height:4px;background:var(--bg3);border-radius:100px;overflow:hidden;">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:0.05em;">Please wait — your application is being submitted. Do not close this page.</p>
+          <p id="uploadStatus" style="font-size:11px;color:var(--faint);margin-bottom:10px;">Preparing your application...</p>
+          <div style="width:100%;height:4px;background:var(--field-bg);border-radius:100px;overflow:hidden;">
             <div id="loadingFill" style="height:100%;width:0%;background:var(--brand);border-radius:100px;transition:width 0.4s ease;"></div>
           </div>
         </div>
       `;
-      btn.parentNode.appendChild(loadingDiv);
+      document.querySelector('.submit-wrap').after(loadingDiv);
 
       let progress = 0;
       const interval = setInterval(() => {
@@ -681,22 +1166,24 @@
         }
       }
 
-      const fullName = document.querySelector('input[placeholder="Your name"]').value.trim();
+      const fullName = document.getElementById('nameInput').value.trim();
+      const discord = document.getElementById('discordInput');
+      const email = document.getElementById('emailInput');
 
       const success = await submitApplication({
         email: email.value,
         name: fullName || discord.value,
         discord: discord.value,
-        roblox: roblox.value,
+        roblox: document.getElementById('robloxInput').value,
         backing: [...document.querySelectorAll('input[name="support"]:checked')].map(el => el.value).join(', '),
         robux: document.getElementById('robuxAmount').value || 'N/A',
-        revenue: revenue.value + '%',
-        overview: overview.value,
-        allocation: allocation.value,
-        stage: stage.value,
-        visits: document.querySelector('input[placeholder="e.g. 1,200,000"]').value || 'N/A',
-        ccu: document.querySelector('input[placeholder="e.g. 400"]').value || 'N/A',
-        monthlyRevenue: document.querySelector('input[placeholder="e.g. $2,000"]').value || 'N/A',
+        revenue: document.getElementById('revenueInput').value + '%',
+        overview: document.getElementById('overviewInput').value,
+        allocation: document.getElementById('allocationInput').value,
+        stage: document.getElementById('stageSelect').value,
+        visits: document.getElementById('visitsInput').value || 'N/A',
+        ccu: document.getElementById('ccuInput').value || 'N/A',
+        monthlyRevenue: document.getElementById('monthlyRevenueInput').value || 'N/A',
         youtubeLink: document.getElementById('youtubeLink').value || 'N/A',
         images,
         pitchdeck
@@ -713,6 +1200,8 @@
 
       setTimeout(() => {
         document.querySelector('.submit-wrap').style.display = 'none';
+        document.getElementById('reviewList').style.display = 'none';
+        document.querySelector('.confirm-wrap').style.display = 'none';
         const loadingBar = document.getElementById('loadingBar');
         if (loadingBar) loadingBar.remove();
         const successMsg = document.getElementById('successMsg');
